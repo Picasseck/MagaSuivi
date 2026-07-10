@@ -16,3 +16,7 @@ export function formatPrice(amount: number): string {
 export function getStockAlerts(products: Product[]): Product[] {
   return products.filter((product) => getStockLevel(product) !== 'ok')
 }
+
+export function applyDiscount(price: number, discountPercent: number): number {
+  return price * (1 - discountPercent / 100)
+}
