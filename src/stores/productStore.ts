@@ -28,7 +28,10 @@ export function useProductStore() {
   }
 
   function deleteProduct(productId: number) {
-    store.items = store.items.filter((product) => product.id !== productId)
+    const index = store.items.findIndex((product) => product.id === productId)
+    if (index !== -1) {
+      store.items.splice(index, 1)
+    }
   }
 
   return {
