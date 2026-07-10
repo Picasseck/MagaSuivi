@@ -1,10 +1,24 @@
 <script setup lang="ts">
-// La coquille de l'application. Le contenu des pages viendra ici plus tard.
+import Sidebar from './components/Sidebar.vue'
 </script>
 
 <template>
   <div class="app">
-    <h1>MagaSuivi</h1>
-    <p>Tableau de bord de gestion de magasin.</p>
+    <Sidebar />
+    <main class="main">
+      <RouterView />
+    </main>
   </div>
 </template>
+
+<style scoped>
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+</style>
