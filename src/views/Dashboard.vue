@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import Topbar from '../components/Topbar.vue'
 import KpiCard from '../components/KpiCard.vue'
 import SalesChart from '../components/SalesChart.vue'
 import StockAlerts from '../components/StockAlerts.vue'
 import TopProducts from '../components/TopProducts.vue'
-import { products } from '../data/products'
+import { useProductStore } from '../stores/productStore'
 import { getStockAlerts } from '../utils/stock'
 
-const totalProducts = computed(() => products.length)
-const alertCount = computed(() => getStockAlerts(products).length)
+const productStore = useProductStore()
+
+onMounted(() => {
+  productStore.loadProducts()
+})
+
+const totalProducts = computed(() => productStore.products.length)
+const alertCount = computed(() => getStockAlerts(productStore.products).length)
 </script>
 
 <template>
