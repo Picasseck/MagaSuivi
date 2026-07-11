@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Topbar from '../components/Topbar.vue'
 import SearchBar from '../components/SearchBar.vue'
 import CategoryFilter from '../components/CategoryFilter.vue'
@@ -9,6 +9,10 @@ import { formatPrice, getStockLevel } from '../utils/stock'
 import type { Product } from '../types'
 
 const productStore = useProductStore()
+
+onMounted(() => {
+  productStore.loadProducts()
+})
 
 const search = ref('')
 const activeCategory = ref('Toutes')

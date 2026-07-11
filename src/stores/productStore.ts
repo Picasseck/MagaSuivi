@@ -1,33 +1,51 @@
 import { reactive } from 'vue'
 import type { Product } from '../types'
-import { products as initialProducts } from '../data/products'
+import * as productApi from '../api/products'
 
 interface ProductStore {
   items: Product[]
+  isLoading: boolean
+  error: string | null
 }
 
 const store = reactive<ProductStore>({
-  items: [...initialProducts],
+  items: [],
+  isLoading: false,
+  error: null,
 })
 
-function generateId(): number {
-  const existingIds = store.items.map((product) => product.id)
-  return existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1
-}
+
 
 export function useProductStore() {
-  function addProduct(newProduct: Omit<Product, 'id'>) {
-    store.items.push({ id: generateId(), ...newProduct })
-  }
 
-  function updateProduct(updatedProduct: Product) {
-    const index = store.items.findIndex((product) => product.id === updatedProduct.id)
-    if (index !== -1) {
-      store.items[index] = updatedProduct
+  async function loadProducts() {
+    store.isLoading = true
+    store.error = null
+    try {
+      const products = await productApi.fetchProducts()
+      store.items.splice(0, store.items.length, ...products)
+    } catch (error) {
+      store.error = 'Impossible de charger les produits.'
+    } finally {
+      store.isLoading = false
     }
   }
 
-  function deleteProduct(productId: number) {
+  async function addProduct(newProduct: Omit<Product, 'id'>) {
+    const created = await productApi.createProduct(newProduct)
+    store.items.push(created)
+  }
+
+  async function updateProduct(updatedProduct: Product) {
+    const saved = await productApi.updateProduct(updatedProduct)
+    const index = store.items.findIndex((product) => product.id === saved.id)
+    if (index !== -1) {
+      store.items[index] = saved
+    }
+  }
+
+  async function deleteProduct(productId: number) {
+    await productApi.deleteProduct(productId)
     const index = store.items.findIndex((product) => product.id === productId)
     if (index !== -1) {
       store.items.splice(index, 1)
@@ -35,7 +53,9 @@ export function useProductStore() {
   }
 
   return {
+    store,
     products: store.items,
+    loadProducts,
     addProduct,
     updateProduct,
     deleteProduct,
