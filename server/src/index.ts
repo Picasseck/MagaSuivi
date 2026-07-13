@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 const app = express()
 const prisma = new PrismaClient()
 const PORT = Number(process.env.PORT) || 3000
+const READ_ONLY = process.env.READ_ONLY === 'true'
 
 app.use(cors())
 app.use(express.json())
@@ -28,6 +29,17 @@ app.get('/api/products/:id', async (request, response) => {
   }
 
   response.json(product)
+})
+
+app.use('/api/products', (request, response, next) => {
+  const isWriteMethod = ['POST', 'PUT', 'DELETE'].includes(request.method)
+  if (READ_ONLY && isWriteMethod) {
+    response.status(403).json({
+      error: 'Cette démonstration est en lecture seule. Les modifications sont désactivées.',
+    })
+    return
+  }
+  next()
 })
 
 app.post('/api/products', async (request, response) => {
